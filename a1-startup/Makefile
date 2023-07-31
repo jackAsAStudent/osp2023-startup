@@ -1,7 +1,13 @@
+CXX=g++
+CXXFLAGS= -Wall -Werror -std=c++20 -lpthread -g -O
 
-##
- # startup code provided by Paul Miller for COSC1114 - Operating Systems
- # Principles
- ##
+all: copier mtcopier
 
-# provide make targets here to build the two programs 
+copier: copier_files/Copier.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+mtcopier: Queue.cpp Reader.cpp Writer.cpp MTCopier.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+clean:
+	rm -f copier mtcopier
