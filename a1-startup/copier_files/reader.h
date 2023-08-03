@@ -8,6 +8,8 @@
 #include <string>
 #ifndef READER
 #define READER
+
+
 class reader {
    public:
     /* create a reader that reads each line of the file and appends it to the
