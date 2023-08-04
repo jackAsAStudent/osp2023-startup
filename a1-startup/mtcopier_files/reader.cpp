@@ -11,7 +11,7 @@
  **/
 std::ifstream reader::in;
 
-void reader::init(const std::string& name) {}
+void reader::init(const std::string& name, unsigned int num_threads) {}
 
 void reader::run() {}
 

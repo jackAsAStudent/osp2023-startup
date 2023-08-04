@@ -21,7 +21,7 @@ class reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    static void init(const std::string& name);
+    static void init(const std::string& name, unsigned int num_threads);
 
     /**
      * the method that implements the thread. It has to be static as the first

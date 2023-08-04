@@ -3,7 +3,7 @@ CXXFLAGS= -Wall -Werror -std=c++20 -g -O
 
 all: copier mtcopier
 
-copier: copier_files/main.cpp
+copier: copier_files/copier.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread
 
 mtcopier: mtcopier_files/reader.cpp mtcopier_files/writer.cpp mtcopier_files/main.cpp
