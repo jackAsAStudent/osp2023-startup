@@ -1,4 +1,4 @@
-#include "Copier.h"
+#include "copier.h"
 
 Copier::Copier(std::ifstream* input, std::ofstream* output) {
     this->input = input;

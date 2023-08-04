@@ -2,14 +2,18 @@
  * startup code provided by Paul Miller for COSC1114 - Operating Systems
  * Principles
  **/
-#include <pthread.h>
+#ifndef READER
+#define READER
 
+#include <pthread.h>
 #include <fstream>
 #include <iostream>
 #include <string>
-#ifndef READER
-#define READER
-class reader {
+#include "queue.h"
+
+#define BLOCK_SIZE 2048
+
+class Reader {
    public:
     /* this class has a bunch of static (which means shared in a class)
      * because we need to share the state between threads. For example, we
@@ -21,7 +25,9 @@ class reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    static void init(const std::string& name, unsigned int num_threads);
+    void init(const std::string& name, unsigned int num_threads);
+
+    ~Reader();
 
     /**
      * the method that implements the thread. It has to be static as the first
@@ -33,7 +39,7 @@ class reader {
     /**
      * does the setup for and launches the threads
      **/
-    void run();
+    void run(int numThreads, Queue& queue);
     /**
      * there may be other functions you need so declare them.
      **/
@@ -43,5 +49,9 @@ class reader {
     /**
      * There may be other private instance data you need so declare those here.
      **/
+    static pthread_mutex_t sequence_mutex;
+    static unsigned int sequence;
+    unsigned int num_threads;
 };
-#endif
+
+#endif // READER
