@@ -47,25 +47,41 @@ void Reader::run() {
 }
 
 void* Reader::runner(void* arg) { 
-	std::cout << "Entered thread" << std::endl;
+    //print out a message to show that the thread has started and which thread it is
+    std::cout << "Thread " << pthread_self() << " started." << std::endl;
 
-	ThreadData* threadData = (ThreadData*) arg;
+    ThreadData* threadData = (ThreadData*) arg;
 
-	DataBlock block;
-	block.buffer.resize(BLOCK_SIZE);
+    DataBlock block;
+    block.buffer.resize(BLOCK_SIZE);
 
-	pthread_mutex_lock(&threadData->reader->sequence_mutex);
-	block.sequence_number = threadData->reader->sequence++;
+    while (true) {
+        pthread_mutex_lock(&threadData->reader->sequence_mutex);
 
-	threadData->reader->in.read(block.buffer.data(), BLOCK_SIZE);
-	block.actual_size = threadData->reader->in.gcount();
+        // Read data into the buffer
+        threadData->reader->in.read(block.buffer.data(), BLOCK_SIZE);
+        
+        // Get the number of characters actually read
+        block.actual_size = threadData->reader->in.gcount();
 
-	pthread_mutex_unlock(&threadData->reader->sequence_mutex);
+        // Unlock the mutex
+        pthread_mutex_unlock(&threadData->reader->sequence_mutex);
 
-	threadData->queue->enqueue(block);
-	
-	return nullptr; 
+        // If no data was read, break out of the loop
+        if (block.actual_size == 0) {
+            break;
+        }
+
+        // Enqueue the data block
+        threadData->queue->enqueue(block);
+
+        // Increment sequence number for the next iteration
+        block.sequence_number++;
+    }
+
+    return nullptr; 
 }
+
 
 void Reader::assertFileOpen() {
 	if (!in.is_open()) {
