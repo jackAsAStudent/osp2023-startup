@@ -43,6 +43,8 @@ class Reader {
      * there may be other functions you need so declare them.
      **/
 
+    void assertFileOpen();
+
    private:
     static std::ifstream in;
     /**

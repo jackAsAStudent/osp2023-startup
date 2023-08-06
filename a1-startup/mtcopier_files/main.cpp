@@ -26,9 +26,8 @@ int main(int argc, char** argv) {
     /**
      * process command line arguments
      **/
-    unsigned int num_threads = int(argv[1]);
+    unsigned int num_threads = std::stoi(argv[1]);
     char* input_file = argv[2];
-    char* output_file = argv[3];
     /**
      * initiliaze the reader and writer classes
      **/
@@ -37,6 +36,8 @@ int main(int argc, char** argv) {
     Queue queue = Queue();
     
     reader.init(input_file, num_threads, &queue);
+
+    reader.assertFileOpen();
 
     reader.run();
 

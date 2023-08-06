@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS= -Wall -Werror -std=c++20 -g -O
+CXXFLAGS= -Wall -Werror -std=c++20 -g 
 
 all: copier mtcopier
 

@@ -19,8 +19,9 @@ struct ThreadData {
 void Reader::init(const std::string& name, unsigned int num_threads, Queue* queue) {
 	in.open(name);
 	this->num_threads = num_threads;
-	sequence = 0;
+	this->sequence = 0;
 	this->queue = queue;
+	pthread_mutex_init(&sequence_mutex, NULL);
 }
 
 Reader::~Reader() {
@@ -31,10 +32,13 @@ Reader::~Reader() {
 void Reader::run() {
 	std::vector<ThreadData> threadDatas(this->num_threads);
 	std::vector<pthread_t> threads(this->num_threads);
-	for (int i = 0; i < num_threads; ++i) {
+	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].reader = this;
 		threadDatas[i].queue = this->queue;
-		pthread_create(&threads[i], NULL, Reader::runner, &threadDatas[i]);
+		int result = pthread_create(&threads[i], NULL, Reader::runner, &threadDatas[i]);
+		if (result != 0) {
+		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
+		}
 	}
 	// Wait for all threads to finish.
 	for (pthread_t thread : threads) {
@@ -43,9 +47,12 @@ void Reader::run() {
 }
 
 void* Reader::runner(void* arg) { 
+	std::cout << "Entered thread" << std::endl;
+
 	ThreadData* threadData = (ThreadData*) arg;
 
 	DataBlock block;
+	block.buffer.resize(BLOCK_SIZE);
 
 	pthread_mutex_lock(&threadData->reader->sequence_mutex);
 	block.sequence_number = threadData->reader->sequence++;
@@ -58,4 +65,11 @@ void* Reader::runner(void* arg) {
 	threadData->queue->enqueue(block);
 	
 	return nullptr; 
+}
+
+void Reader::assertFileOpen() {
+	if (!in.is_open()) {
+		std::cerr << "Error: File not open." << std::endl;
+		exit(1);
+	}
 }
