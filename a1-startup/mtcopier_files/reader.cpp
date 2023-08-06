@@ -5,19 +5,22 @@
 #include "reader.h"
 
 /**
- * implement the functions needed for this class
+ * Global variable declerations.
  **/
 std::ifstream Reader::in;
+pthread_mutex_t Reader::sequence_mutex;
+unsigned int Reader::sequence;
 
 struct ThreadData {
 	Reader* reader;
 	Queue* queue;
 };
 
-void Reader::init(const std::string& name, unsigned int num_threads) {
+void Reader::init(const std::string& name, unsigned int num_threads, Queue* queue) {
 	in.open(name);
 	this->num_threads = num_threads;
 	sequence = 0;
+	this->queue = queue;
 }
 
 Reader::~Reader() {
@@ -25,12 +28,12 @@ Reader::~Reader() {
 	pthread_mutex_destroy(&sequence_mutex);
 }
 
-void Reader::run(int numThreads, Queue& queue) {
-	std::vector<ThreadData> threadDatas(numThreads);
-	std::vector<pthread_t> threads(numThreads);
-	for (int i = 0; i < numThreads; ++i) {
+void Reader::run() {
+	std::vector<ThreadData> threadDatas(this->num_threads);
+	std::vector<pthread_t> threads(this->num_threads);
+	for (int i = 0; i < num_threads; ++i) {
 		threadDatas[i].reader = this;
-		threadDatas[i].queue = &queue;
+		threadDatas[i].queue = this->queue;
 		pthread_create(&threads[i], NULL, Reader::runner, &threadDatas[i]);
 	}
 	// Wait for all threads to finish.

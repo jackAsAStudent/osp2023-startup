@@ -9,7 +9,7 @@
  * these need to be global variables as you'll need handle cleaning them up in
  *cleanup which will automatically be called on program exit
  **/
-reader* readers;
+Reader* readers;
 writer* writers;
 
 void cleanup() {
@@ -26,9 +26,21 @@ int main(int argc, char** argv) {
     /**
      * process command line arguments
      **/
+    unsigned int num_threads = int(argv[1]);
+    char* input_file = argv[2];
+    char* output_file = argv[3];
     /**
      * initiliaze the reader and writer classes
      **/
+
+    Reader reader = Reader();
+    Queue queue = Queue();
+    
+    reader.init(input_file, num_threads, &queue);
+
+    reader.run();
+
+
     /**
      * initialize the running of each thread. Note you just call run() on each
      * object here, you'll call pthread_create itself in the run function.

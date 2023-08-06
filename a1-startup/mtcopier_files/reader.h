@@ -11,7 +11,6 @@
 #include <string>
 #include "queue.h"
 
-#define BLOCK_SIZE 2048
 
 class Reader {
    public:
@@ -25,7 +24,7 @@ class Reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    void init(const std::string& name, unsigned int num_threads);
+    void init(const std::string& name, unsigned int num_threads, Queue* queue);
 
     ~Reader();
 
@@ -39,7 +38,7 @@ class Reader {
     /**
      * does the setup for and launches the threads
      **/
-    void run(int numThreads, Queue& queue);
+    void run();
     /**
      * there may be other functions you need so declare them.
      **/
@@ -52,6 +51,7 @@ class Reader {
     static pthread_mutex_t sequence_mutex;
     static unsigned int sequence;
     unsigned int num_threads;
+    Queue* queue;
 };
 
 #endif // READER

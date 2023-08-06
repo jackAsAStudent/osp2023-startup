@@ -3,6 +3,9 @@
 
 #include <pthread.h>
 #include <queue>
+#include <iostream>
+
+#define BLOCK_SIZE 2048
 
 struct DataBlock {
     int sequence_number;
@@ -15,7 +18,7 @@ private:
 
     std::queue<DataBlock> q;
     pthread_mutex_t mtx;
-    pthread_cond_t cond;
+    pthread_cond_t buffer_ready;
 
 public:
 
