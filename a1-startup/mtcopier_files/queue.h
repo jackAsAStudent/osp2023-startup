@@ -9,7 +9,7 @@
 
 struct DataBlock {
     int sequence_number;
-    std::vector<char> buffer;
+    std::vector<char> buffer = std::vector<char>(BLOCK_SIZE);
 	size_t actual_size;
 };
 

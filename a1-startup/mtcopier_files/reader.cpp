@@ -7,7 +7,7 @@
 /**
  * Global variable declerations.
  **/
-std::ifstream Reader::in;
+std::ifstream Reader::input;
 pthread_mutex_t Reader::sequence_mutex;
 unsigned int Reader::sequence;
 
@@ -16,8 +16,8 @@ struct ThreadData {
 	Queue* queue;
 };
 
-void Reader::init(const std::string& name, unsigned int num_threads, Queue* queue) {
-	in.open(name);
+void Reader::init(const std::string& input_file, unsigned int num_threads, Queue* queue) {
+	input.open(input_file);
 	this->num_threads = num_threads;
 	this->sequence = 0;
 	this->queue = queue;
@@ -25,7 +25,7 @@ void Reader::init(const std::string& name, unsigned int num_threads, Queue* queu
 }
 
 Reader::~Reader() {
-	in.close();
+	input.close();
 	pthread_mutex_destroy(&sequence_mutex);
 }
 
@@ -47,22 +47,18 @@ void Reader::run() {
 }
 
 void* Reader::runner(void* arg) { 
-    //print out a message to show that the thread has started and which thread it is
-    std::cout << "Thread " << pthread_self() << " started." << std::endl;
-
     ThreadData* threadData = (ThreadData*) arg;
 
     DataBlock block;
-    block.buffer.resize(BLOCK_SIZE);
 
     while (true) {
         pthread_mutex_lock(&threadData->reader->sequence_mutex);
 
         // Read data into the buffer
-        threadData->reader->in.read(block.buffer.data(), BLOCK_SIZE);
+        threadData->reader->input.read(block.buffer.data(), BLOCK_SIZE);
         
         // Get the number of characters actually read
-        block.actual_size = threadData->reader->in.gcount();
+        block.actual_size = threadData->reader->input.gcount();
 
         // Unlock the mutex
         pthread_mutex_unlock(&threadData->reader->sequence_mutex);
@@ -84,7 +80,7 @@ void* Reader::runner(void* arg) {
 
 
 void Reader::assertFileOpen() {
-	if (!in.is_open()) {
+	if (!input.is_open()) {
 		std::cerr << "Error: File not open." << std::endl;
 		exit(1);
 	}

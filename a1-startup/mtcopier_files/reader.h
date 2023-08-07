@@ -24,7 +24,7 @@ class Reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    void init(const std::string& name, unsigned int num_threads, Queue* queue);
+    void init(const std::string& input_file, unsigned int num_threads, Queue* queue);
 
     ~Reader();
 
@@ -46,7 +46,7 @@ class Reader {
     void assertFileOpen();
 
    private:
-    static std::ifstream in;
+    static std::ifstream input;
     /**
      * There may be other private instance data you need so declare those here.
      **/

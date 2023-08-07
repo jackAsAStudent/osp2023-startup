@@ -10,7 +10,7 @@
  *cleanup which will automatically be called on program exit
  **/
 Reader* readers;
-writer* writers;
+Writer* writers;
 
 void cleanup() {
     /**

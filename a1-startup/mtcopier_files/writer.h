@@ -2,15 +2,18 @@
  * startup code provided by Paul Miller for COSC1114 - Operating Systems
  * Principles
  **/
+#ifndef WRITER
+#define WRITER
 #include <pthread.h>
 
 #include <deque>
 #include <fstream>
 #include <iostream>
 #include <string>
-#ifndef WRITER
-#define WRITER
-class writer {
+
+#include "queue.h"
+
+class Writer {
    public:
     /**
      * Please note that methods and data need to be static as there's a
@@ -20,13 +23,16 @@ class writer {
      * needs to be static. You can pass in instances into the function as
      * pointers though.
      **/
-    static void init(const std::string& name);
+    void init(const std::string& output_file, unsigned int num_threads, Queue* queue);
     static void* runner(void*);
     void run();
-    static void append(const std::string& line);
 
    private:
-    static std::ofstream out;
-    static std::deque<std::string> queue;
+    static std::ofstream output;
+    static pthread_mutex_t sequence_mutex;
+    static pthread_cond_t sequence_incremented;
+    static unsigned int sequence;
+    unsigned int num_threads;
+    Queue* queue;
 };
 #endif
