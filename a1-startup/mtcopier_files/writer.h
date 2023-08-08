@@ -12,6 +12,7 @@
 #include <string>
 
 #include "queue.h"
+#include "shared_state.h"
 
 class Writer {
    public:

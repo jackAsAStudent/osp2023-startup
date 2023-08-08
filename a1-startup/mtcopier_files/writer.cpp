@@ -39,7 +39,6 @@ void* Writer::runner(void* arg) {
 
     while (true) {
 
-		//If the 
         //Dequeue the next block
 		DataBlock block = threadData->queue->dequeue(block);
         

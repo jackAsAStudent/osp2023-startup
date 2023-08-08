@@ -16,12 +16,13 @@ struct ThreadData {
 	Queue* queue;
 };
 
-void Reader::init(const std::string& input_file, unsigned int num_threads, Queue* queue) {
+void Reader::init(const std::string& input_file, unsigned int num_threads, Queue* queue, SharedState* shared_state) {
 	input.open(input_file);
 	this->num_threads = num_threads;
 	this->sequence = 0;
 	this->queue = queue;
 	pthread_mutex_init(&sequence_mutex, NULL);
+	this->shared_state = shared_state;
 }
 
 Reader::~Reader() {

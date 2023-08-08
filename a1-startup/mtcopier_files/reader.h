@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include "queue.h"
+#include "shared_state.h"
 
 
 class Reader {
@@ -24,7 +25,7 @@ class Reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    void init(const std::string& input_file, unsigned int num_threads, Queue* queue);
+    void init(const std::string& input_file, unsigned int num_threads, Queue* queue, SharedState* shared_state);
 
     ~Reader();
 
@@ -54,6 +55,7 @@ class Reader {
     static unsigned int sequence;
     unsigned int num_threads;
     Queue* queue;
+    SharedState* shared_state;
 };
 
 #endif // READER
