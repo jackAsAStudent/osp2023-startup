@@ -29,3 +29,10 @@ DataBlock Queue::dequeue() {
 	pthread_mutex_unlock(&mtx);
 	return value;
 }
+
+bool Queue::isEmpty() {
+	pthread_mutex_lock(&mtx);
+	bool empty = q.empty();
+	pthread_mutex_unlock(&mtx);
+	return empty;
+}

@@ -29,6 +29,8 @@ public:
     void enqueue(DataBlock value);
 
     DataBlock dequeue();
+
+    bool isEmpty();
 };
 
 #endif //QUEUE

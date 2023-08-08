@@ -64,16 +64,17 @@ void* Reader::runner(void* arg) {
         // Unlock the mutex
         pthread_mutex_unlock(&threadData->reader->sequence_mutex);
 
-        // If no data was read, break out of the loop
+        // If no data was read, set reading done and break out of the loop
         if (block.actual_size == 0) {
+			threadData->reader->shared_state->setReadingDone();
             break;
         }
 
+		//assign the sequence number to the block and increment the sequence number.
+		block.sequence_number = threadData->reader->sequence++;
+
         // Enqueue the data block
         threadData->queue->enqueue(block);
-
-        // Increment sequence number for the next iteration
-        block.sequence_number++;
     }
 
     return nullptr; 

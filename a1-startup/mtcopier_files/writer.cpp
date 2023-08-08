@@ -16,7 +16,7 @@ struct ThreadData {
 /**
  * implement these functions requred for the Writer class
  **/
-void Writer::init(const std::string& name, unsigned int num_threads, Queue* queue) {
+void Writer::init(const std::string& name, unsigned int num_threads, Queue* queue, SharedState* shared_state) {
 	this->sequence = 0;
 	this->output.open(name);
 	if (!output.is_open()) {
@@ -25,6 +25,7 @@ void Writer::init(const std::string& name, unsigned int num_threads, Queue* queu
 	}
 	this->num_threads = num_threads;
 	this->queue = queue;
+	this->shared_state = shared_state;
 	pthread_mutex_init(&sequence_mutex, NULL);
 	pthread_cond_init(&sequence_incremented, NULL);
 }
@@ -39,19 +40,31 @@ void* Writer::runner(void* arg) {
 
     while (true) {
 
-        //Dequeue the next block
-		DataBlock block = threadData->queue->dequeue(block);
-        
-		//Lock the mutex
-        pthread_mutex_lock(&threadData->writer->sequence_mutex);
+		//lock the mutex
+		pthread_mutex_lock(&(threadData->writer->sequence_mutex));
 
+
+		//wait until there is data in the queue. 
+		while (threadData->queue->isEmpty() && !threadData->writer->shared_state->readingDone()){
+			pthread_cond_wait(&(threadData->writer->sequence_incremented), &(threadData->writer->sequence_mutex));
+		}
+
+		//queue is empty and reading is finished, so break out of the loop
+		if (threadData->queue->isEmpty() && threadData->writer->shared_state->readingDone()) {
+			pthread_mutex_unlock(&(threadData->writer->sequence_mutex));
+			break;
+		}
+
+        //Dequeue the next block
+		DataBlock block = threadData->queue->dequeue();
+        
 		if (block.sequence_number == threadData->writer->sequence) {
 			//write the block to the output file
 
 			//Increment the sequence number
 
 			//Signal the condition variable
-			pthread_cond_broadcast(&threadData->writer->sequence_incremented)
+			pthread_cond_broadcast(&threadData->writer->sequence_incremented);
 		}
 		else {
 			pthread_cond_wait(&threadData->writer->sequence_incremented, &threadData->writer->sequence_mutex);

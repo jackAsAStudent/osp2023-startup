@@ -24,7 +24,7 @@ class Writer {
      * needs to be static. You can pass in instances into the function as
      * pointers though.
      **/
-    void init(const std::string& output_file, unsigned int num_threads, Queue* queue);
+    void init(const std::string& output_file, unsigned int num_threads, Queue* queue, SharedState* shared_state);
     static void* runner(void*);
     void run();
 
@@ -35,5 +35,6 @@ class Writer {
     static unsigned int sequence;
     unsigned int num_threads;
     Queue* queue;
+    SharedState* shared_state;
 };
 #endif
