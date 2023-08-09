@@ -43,7 +43,6 @@ void* Writer::runner(void* arg) {
 		//lock the mutex
 		pthread_mutex_lock(&(threadData->writer->sequence_mutex));
 
-
 		//wait until there is data in the queue. 
 		while (threadData->queue->isEmpty() && !threadData->writer->shared_state->readingDone()){
 			pthread_cond_wait(&(threadData->writer->sequence_incremented), &(threadData->writer->sequence_mutex));
@@ -60,6 +59,7 @@ void* Writer::runner(void* arg) {
         
 		if (block.sequence_number == threadData->writer->sequence) {
 			//write the block to the output file
+			threadData->writer->output.write(&(block.buffer[0]), block.actual_size);
 
 			//Increment the sequence number
 
@@ -71,35 +71,8 @@ void* Writer::runner(void* arg) {
 		}
 
         // Unlock the mutex
-        pthread_mutex_unlock(&threadData->reader->sequence_mutex);
-
-        // If no data was read, break out of the loop
-        if (block.actual_size == 0) {
-            break;
-        }
-
-        // Enqueue the data block
-        threadData->queue->enqueue(block);
-
-        // Increment sequence number for the next iteration
-        block.sequence_number++;
-    }
+        pthread_mutex_unlock(&threadData->writer->sequence_mutex);
+	}
 
     return nullptr; 
-	//Get the thread data from arg
-
-
-	//Get the queue from the thread data
-
-	//Get the output file from the thread data
-
-	//Pull off of the queue
-
-	//Lock the mutex if the sequence number of the block is the next in the sequence, else wait until the sequence number has increased.
-
-	//Write the block to the output file
-
-	//Unlock the mutex
-	
-	return nullptr; 
 }
