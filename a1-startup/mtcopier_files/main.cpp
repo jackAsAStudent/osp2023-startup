@@ -5,12 +5,7 @@
 #include "reader.h"
 #include "writer.h"
 #include <cstdlib>
-/**
- * these need to be global variables as you'll need handle cleaning them up in
- *cleanup which will automatically be called on program exit
- **/
-Reader* readers;
-Writer* writers;
+#include <pthread.h>
 
 void cleanup() {
     /**
@@ -28,24 +23,21 @@ int main(int argc, char** argv) {
      **/
     unsigned int num_threads = std::stoi(argv[1]);
     char* input_file = argv[2];
+    char* output_file = argv[3];
     /**
      * initiliaze the reader and writer classes
      **/
 
-    Reader reader = Reader();
     Queue queue = Queue();
+    Reader reader = Reader();
+    Writer writer = Writer();
+    SharedState shared_state = SharedState();
     
-    reader.init(input_file, num_threads, &queue);
-
-    reader.assertFileOpen();
+    reader.init(input_file, num_threads, &queue, &shared_state);
+    writer.init(output_file, num_threads, &queue, &shared_state);
 
     reader.run();
-
-
-    /**
-     * initialize the running of each thread. Note you just call run() on each
-     * object here, you'll call pthread_create itself in the run function.
-     **/
+    writer.run();
 
     /**
      *

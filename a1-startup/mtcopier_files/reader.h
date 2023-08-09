@@ -40,6 +40,11 @@ class Reader {
      * does the setup for and launches the threads
      **/
     void run();
+
+    /**
+     * joins the threads
+     **/
+    void join();
     /**
      * there may be other functions you need so declare them.
      **/
@@ -57,6 +62,7 @@ class Reader {
     Queue* queue;
     SharedState* shared_state;
     pthread_attr_t detached_attr;
+    std::vector<pthread_t> threads;
 };
 
 #endif // READER

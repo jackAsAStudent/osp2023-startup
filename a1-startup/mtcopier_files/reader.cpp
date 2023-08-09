@@ -37,8 +37,8 @@ Reader::~Reader() {
 }
 
 void Reader::run() {
+	threads.resize(this->num_threads);
 	std::vector<ThreadData> threadDatas(this->num_threads);
-	std::vector<pthread_t> threads(this->num_threads);
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].reader = this;
 		threadDatas[i].queue = this->queue;
@@ -46,6 +46,13 @@ void Reader::run() {
 		if (result != 0) {
 		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
 		}
+	}
+}
+
+void Reader::join() {
+	//join the threads
+	for (int i = 0; i < this->num_threads; i++) {
+		pthread_join(threads[i], NULL);
 	}
 }
 
@@ -63,6 +70,9 @@ void* Reader::runner(void* arg) {
         // Get the number of characters actually read
         block.actual_size = threadData->reader->input.gcount();
 
+		//assign the sequence number to the block and increment the sequence number.
+		block.sequence_number = threadData->reader->sequence++;
+
         // Unlock the mutex
         pthread_mutex_unlock(&threadData->reader->sequence_mutex);
 
@@ -72,13 +82,9 @@ void* Reader::runner(void* arg) {
             break;
         }
 
-		//assign the sequence number to the block and increment the sequence number.
-		block.sequence_number = threadData->reader->sequence++;
-
         // Enqueue the data block
         threadData->queue->enqueue(block);
     }
-
     return nullptr; 
 }
 
