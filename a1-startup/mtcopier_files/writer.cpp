@@ -26,11 +26,25 @@ void Writer::init(const std::string& name, unsigned int num_threads, Queue* queu
 	this->num_threads = num_threads;
 	this->queue = queue;
 	this->shared_state = shared_state;
+
 	pthread_mutex_init(&sequence_mutex, NULL);
 	pthread_cond_init(&sequence_incremented, NULL);
+	pthread_attr_init(&(this->detached_attr));
+	pthread_attr_setdetachstate(&(this->detached_attr), PTHREAD_CREATE_DETACHED);
 }
 
-void Writer::run() {}
+void Writer::run() {
+	std::vector<ThreadData> threadDatas(this->num_threads);
+	std::vector<pthread_t> threads(this->num_threads);
+	for (int i = 0; i < num_threads; i++) {
+		threadDatas[i].writer = this;
+		threadDatas[i].queue = this->queue;
+		int result = pthread_create(&threads[i], &(this->detached_attr), Writer::runner, &threadDatas[i]);
+		if (result != 0) {
+		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
+		}
+	}
+}
 
 void* Writer::runner(void* arg) { 
 	//print out a message to show that the thread has started and which thread it is
@@ -62,6 +76,7 @@ void* Writer::runner(void* arg) {
 			threadData->writer->output.write(&(block.buffer[0]), block.actual_size);
 
 			//Increment the sequence number
+			threadData->writer->sequence++;
 
 			//Signal the condition variable
 			pthread_cond_broadcast(&threadData->writer->sequence_incremented);

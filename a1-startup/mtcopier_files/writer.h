@@ -36,5 +36,6 @@ class Writer {
     unsigned int num_threads;
     Queue* queue;
     SharedState* shared_state;
+    pthread_attr_t detached_attr;
 };
 #endif

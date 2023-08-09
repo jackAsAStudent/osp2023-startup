@@ -18,11 +18,17 @@ struct ThreadData {
 
 void Reader::init(const std::string& input_file, unsigned int num_threads, Queue* queue, SharedState* shared_state) {
 	input.open(input_file);
+
+	//set up shared data
 	this->num_threads = num_threads;
 	this->sequence = 0;
 	this->queue = queue;
-	pthread_mutex_init(&sequence_mutex, NULL);
 	this->shared_state = shared_state;
+
+	//initialise the mutex and the detached attribute.
+	pthread_mutex_init(&sequence_mutex, NULL);
+	pthread_attr_init(&(this->detached_attr));
+	pthread_attr_setdetachstate(&(this->detached_attr), PTHREAD_CREATE_DETACHED);
 }
 
 Reader::~Reader() {
@@ -36,14 +42,10 @@ void Reader::run() {
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].reader = this;
 		threadDatas[i].queue = this->queue;
-		int result = pthread_create(&threads[i], NULL, Reader::runner, &threadDatas[i]);
+		int result = pthread_create(&threads[i], &(this->detached_attr), Reader::runner, &threadDatas[i]);
 		if (result != 0) {
 		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
 		}
-	}
-	// Wait for all threads to finish.
-	for (pthread_t thread : threads) {
-		pthread_join(thread, NULL);
 	}
 }
 
