@@ -6,7 +6,7 @@ all: copier mtcopier
 copier: copier_files/copier.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread
 
-mtcopier: mtcopier_files/reader.cpp mtcopier_files/writer.cpp mtcopier_files/main.cpp mtcopier_files/queue.cpp
+mtcopier: mtcopier_files/reader.cpp mtcopier_files/writer.cpp mtcopier_files/main.cpp mtcopier_files/queue.cpp mtcopier_files/shared_state.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ -lpthread
 
 clean:

@@ -10,6 +10,11 @@
 std::ifstream Reader::input;
 pthread_mutex_t Reader::sequence_mutex;
 unsigned int Reader::sequence;
+SharedState* Reader::shared_state;
+Queue* Reader::queue;
+std::vector<pthread_t> Reader::threads;
+unsigned int Reader::num_threads;
+pthread_attr_t Reader::detached_attr;
 
 struct ThreadData {
 	Reader* reader;
@@ -34,10 +39,11 @@ void Reader::init(const std::string& input_file, unsigned int num_threads, Queue
 Reader::~Reader() {
 	input.close();
 	pthread_mutex_destroy(&sequence_mutex);
+	pthread_attr_destroy(&detached_attr);
 }
 
 void Reader::run() {
-	threads.resize(this->num_threads);
+	this->threads.resize(this->num_threads);
 	std::vector<ThreadData> threadDatas(this->num_threads);
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].reader = this;
@@ -86,12 +92,4 @@ void* Reader::runner(void* arg) {
         threadData->queue->enqueue(block);
     }
     return nullptr; 
-}
-
-
-void Reader::assertFileOpen() {
-	if (!input.is_open()) {
-		std::cerr << "Error: File not open." << std::endl;
-		exit(1);
-	}
 }

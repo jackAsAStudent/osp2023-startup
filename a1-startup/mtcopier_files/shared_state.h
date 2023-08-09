@@ -1,3 +1,6 @@
+#ifndef SHARED_STATE
+#define SHARED_STATE
+
 #include <pthread.h>
 
 class SharedState {
@@ -10,3 +13,5 @@ public:
     void setReadingDone();
     bool readingDone(); 
 };
+
+#endif //SHARED_STATE

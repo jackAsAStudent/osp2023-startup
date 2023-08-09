@@ -24,20 +24,21 @@ class Writer {
      * needs to be static. You can pass in instances into the function as
      * pointers though.
      **/
+    ~Writer();
     void init(const std::string& output_file, unsigned int num_threads, Queue* queue, SharedState* shared_state);
     static void* runner(void*);
     void run();
     void join();
 
    private:
-    std::vector<pthread_t> threads;
+    static std::vector<pthread_t> threads;
     static std::ofstream output;
     static pthread_mutex_t sequence_mutex;
     static pthread_cond_t sequence_incremented;
     static unsigned int sequence;
-    unsigned int num_threads;
-    Queue* queue;
-    SharedState* shared_state;
-    pthread_attr_t detached_attr;
+    static unsigned int num_threads;
+    static Queue* queue;
+    static SharedState* shared_state;
+    static pthread_attr_t detached_attr;
 };
 #endif

@@ -49,7 +49,6 @@ class Reader {
      * there may be other functions you need so declare them.
      **/
 
-    void assertFileOpen();
 
    private:
     static std::ifstream input;
@@ -58,11 +57,11 @@ class Reader {
      **/
     static pthread_mutex_t sequence_mutex;
     static unsigned int sequence;
-    unsigned int num_threads;
-    Queue* queue;
-    SharedState* shared_state;
-    pthread_attr_t detached_attr;
-    std::vector<pthread_t> threads;
+    static unsigned int num_threads;
+    static Queue* queue;
+    static SharedState* shared_state;
+    static pthread_attr_t detached_attr;
+    static std::vector<pthread_t> threads;
 };
 
 #endif // READER

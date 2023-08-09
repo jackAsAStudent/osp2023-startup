@@ -7,6 +7,12 @@
 std::ofstream Writer::output;
 pthread_mutex_t Writer::sequence_mutex;
 unsigned int Writer::sequence;
+pthread_cond_t Writer::sequence_incremented;
+Queue* Writer::queue;
+SharedState* Writer::shared_state;
+pthread_attr_t Writer::detached_attr;
+std::vector<pthread_t> Writer::threads;
+unsigned int Writer::num_threads;
 
 struct ThreadData {
 	Writer* writer;
@@ -34,7 +40,7 @@ void Writer::init(const std::string& name, unsigned int num_threads, Queue* queu
 }
 
 void Writer::run() {
-	this->threads.resize(this->num_threads);
+	threads.resize(this->num_threads);
 	std::vector<ThreadData> threadDatas(this->num_threads);
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].writer = this;
@@ -54,8 +60,6 @@ void Writer::join() {
 }
 
 void* Writer::runner(void* arg) { 
-	//print out a message to show that the thread has started and which thread it is
-    std::cout << "Thread " << pthread_self() << " started." << std::endl;
 
     ThreadData* threadData = (ThreadData*) arg;
 
@@ -97,4 +101,11 @@ void* Writer::runner(void* arg) {
 	}
 
     return nullptr; 
+}
+
+Writer::~Writer() {
+	output.close();
+	pthread_mutex_destroy(&sequence_mutex);
+	pthread_attr_destroy(&detached_attr);
+	pthread_cond_destroy(&sequence_incremented);
 }

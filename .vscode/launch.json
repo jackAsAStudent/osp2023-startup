@@ -9,7 +9,7 @@
 			"request": "launch",
 			"name": "Debug",
 			"program": "${workspaceFolder}/a1-startup/mtcopier",
-			"args": ["1", "a1-startup/large_text_file.txt"],
+			"args": ["1", "a1-startup/large_text_file.txt", "a1-startup/large_text_file_copy.txt"],
 			"cwd": "${workspaceFolder}"
 		}
 	]

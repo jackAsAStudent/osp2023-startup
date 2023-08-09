@@ -13,8 +13,6 @@ Queue::~Queue() {
 void Queue::enqueue(DataBlock value) {
 	pthread_mutex_lock(&mtx);
 	q.push(value);
-	//for testing.
-	std::cout << std::string(value.buffer.data(), value.buffer.size()) << std::endl;
 	pthread_cond_signal(&buffer_ready);  // Notify one waiting thread, if there is one
 	pthread_mutex_unlock(&mtx);
 }
