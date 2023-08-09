@@ -27,8 +27,10 @@ class Writer {
     void init(const std::string& output_file, unsigned int num_threads, Queue* queue, SharedState* shared_state);
     static void* runner(void*);
     void run();
+    void join();
 
    private:
+    std::vector<pthread_t> threads;
     static std::ofstream output;
     static pthread_mutex_t sequence_mutex;
     static pthread_cond_t sequence_incremented;

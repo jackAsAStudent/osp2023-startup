@@ -34,8 +34,8 @@ void Writer::init(const std::string& name, unsigned int num_threads, Queue* queu
 }
 
 void Writer::run() {
+	this->threads.resize(this->num_threads);
 	std::vector<ThreadData> threadDatas(this->num_threads);
-	std::vector<pthread_t> threads(this->num_threads);
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].writer = this;
 		threadDatas[i].queue = this->queue;
@@ -43,6 +43,13 @@ void Writer::run() {
 		if (result != 0) {
 		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
 		}
+	}
+}
+
+void Writer::join() {
+	//join the threads
+	for (int i = 0; i < this->num_threads; i++) {
+		pthread_join(threads[i], NULL);
 	}
 }
 

@@ -39,6 +39,9 @@ int main(int argc, char** argv) {
     reader.run();
     writer.run();
 
+    reader.join();
+    writer.join();
+
     /**
      *
      * have loop here waiting for the threads to bomplete. Please see
