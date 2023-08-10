@@ -14,8 +14,16 @@
 #include "queue.h"
 #include "shared_state.h"
 
+class Writer;
+
+struct WriterThreadData {
+    Writer* writer;
+    Queue* queue;
+};
+
 class Writer {
    public:
+   
     /**
      * Please note that methods and data need to be static as there's a
      * variety of information that needs to be coordinated between writers
@@ -31,14 +39,14 @@ class Writer {
     void join();
 
    private:
-    static std::vector<pthread_t> threads;
+    std::vector<pthread_t> threads;
     static std::ofstream output;
     static pthread_mutex_t sequence_mutex;
     static pthread_cond_t sequence_incremented;
     static unsigned int sequence;
-    static unsigned int num_threads;
+    unsigned int num_threads;
     static Queue* queue;
     static SharedState* shared_state;
-    static pthread_attr_t detached_attr;
+    static std::vector<WriterThreadData> threadDatas;
 };
 #endif

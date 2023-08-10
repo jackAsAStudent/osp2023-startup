@@ -19,6 +19,7 @@ void Queue::enqueue(DataBlock value) {
 
 DataBlock Queue::dequeue() {
 	pthread_mutex_lock(&mtx);
+	std::cout << "Pulling from Queue" << std::endl;
 	while (q.empty()) {
 		pthread_cond_wait(&buffer_ready, &mtx);  // Unlock the mutex and wait for signal
 	}

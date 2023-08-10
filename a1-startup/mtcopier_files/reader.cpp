@@ -12,17 +12,14 @@ pthread_mutex_t Reader::sequence_mutex;
 unsigned int Reader::sequence;
 SharedState* Reader::shared_state;
 Queue* Reader::queue;
-std::vector<pthread_t> Reader::threads;
-unsigned int Reader::num_threads;
-pthread_attr_t Reader::detached_attr;
-
-struct ThreadData {
-	Reader* reader;
-	Queue* queue;
-};
+std::vector<ReaderThreadData> Reader::threadDatas;
 
 void Reader::init(const std::string& input_file, unsigned int num_threads, Queue* queue, SharedState* shared_state) {
 	input.open(input_file);
+	if (!input.is_open()) {
+		std::cerr << "Unable to open input file " << input_file << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	//set up shared data
 	this->num_threads = num_threads;
@@ -30,27 +27,26 @@ void Reader::init(const std::string& input_file, unsigned int num_threads, Queue
 	this->queue = queue;
 	this->shared_state = shared_state;
 
+	this->threads.resize(this->num_threads);
+	this->threadDatas.resize(this->num_threads);
+
 	//initialise the mutex and the detached attribute.
 	pthread_mutex_init(&sequence_mutex, NULL);
-	pthread_attr_init(&(this->detached_attr));
-	pthread_attr_setdetachstate(&(this->detached_attr), PTHREAD_CREATE_DETACHED);
 }
 
 Reader::~Reader() {
 	input.close();
 	pthread_mutex_destroy(&sequence_mutex);
-	pthread_attr_destroy(&detached_attr);
 }
 
 void Reader::run() {
-	this->threads.resize(this->num_threads);
-	std::vector<ThreadData> threadDatas(this->num_threads);
+	//The threadDatas will be passed to the runner function. It contains a pointer to the reader and the queue.
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].reader = this;
 		threadDatas[i].queue = this->queue;
-		int result = pthread_create(&threads[i], &(this->detached_attr), Reader::runner, &threadDatas[i]);
+		int result = pthread_create(&threads[i], NULL, Reader::runner, &threadDatas[i]);
 		if (result != 0) {
-		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
+			std::cerr << "Error creating thread: " << strerror(result) << std::endl;
 		}
 	}
 }
@@ -63,7 +59,7 @@ void Reader::join() {
 }
 
 void* Reader::runner(void* arg) { 
-    ThreadData* threadData = (ThreadData*) arg;
+    ReaderThreadData* threadData = (ReaderThreadData*) arg;
 
     DataBlock block;
 

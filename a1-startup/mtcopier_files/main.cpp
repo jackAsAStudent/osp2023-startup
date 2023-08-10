@@ -29,9 +29,10 @@ int main(int argc, char** argv) {
      **/
 
     Queue queue = Queue();
+    SharedState shared_state = SharedState();
+
     Reader reader = Reader();
     Writer writer = Writer();
-    SharedState shared_state = SharedState();
     
     reader.init(input_file, num_threads, &queue, &shared_state);
     writer.init(output_file, num_threads, &queue, &shared_state);

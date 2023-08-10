@@ -12,9 +12,16 @@
 #include "queue.h"
 #include "shared_state.h"
 
+class Reader;
+
+struct ReaderThreadData {
+  Reader* reader;
+  Queue* queue;
+};
 
 class Reader {
    public:
+
     /* this class has a bunch of static (which means shared in a class)
      * because we need to share the state between threads. For example, we
      * are reading from the same file, should have the same locks for all
@@ -57,11 +64,11 @@ class Reader {
      **/
     static pthread_mutex_t sequence_mutex;
     static unsigned int sequence;
-    static unsigned int num_threads;
+    unsigned int num_threads;
     static Queue* queue;
     static SharedState* shared_state;
-    static pthread_attr_t detached_attr;
-    static std::vector<pthread_t> threads;
+    std::vector<pthread_t> threads;
+    static std::vector<ReaderThreadData> threadDatas;
 };
 
 #endif // READER

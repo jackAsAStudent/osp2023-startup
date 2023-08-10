@@ -10,14 +10,7 @@ unsigned int Writer::sequence;
 pthread_cond_t Writer::sequence_incremented;
 Queue* Writer::queue;
 SharedState* Writer::shared_state;
-pthread_attr_t Writer::detached_attr;
-std::vector<pthread_t> Writer::threads;
-unsigned int Writer::num_threads;
-
-struct ThreadData {
-	Writer* writer;
-	Queue* queue;
-};
+std::vector<WriterThreadData> Writer::threadDatas;
 
 /**
  * implement these functions requred for the Writer class
@@ -25,7 +18,7 @@ struct ThreadData {
 void Writer::init(const std::string& name, unsigned int num_threads, Queue* queue, SharedState* shared_state) {
 	this->sequence = 0;
 	this->output.open(name);
-	if (!output.is_open()) {
+	if (!this->output.is_open()) {
 		std::cerr << "Unable to open output file " << name << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -33,19 +26,19 @@ void Writer::init(const std::string& name, unsigned int num_threads, Queue* queu
 	this->queue = queue;
 	this->shared_state = shared_state;
 
+	threads.resize(this->num_threads);
+	threadDatas.resize(this->num_threads);
+
 	pthread_mutex_init(&sequence_mutex, NULL);
 	pthread_cond_init(&sequence_incremented, NULL);
-	pthread_attr_init(&(this->detached_attr));
-	pthread_attr_setdetachstate(&(this->detached_attr), PTHREAD_CREATE_DETACHED);
 }
 
 void Writer::run() {
-	threads.resize(this->num_threads);
-	std::vector<ThreadData> threadDatas(this->num_threads);
 	for (int i = 0; i < num_threads; i++) {
 		threadDatas[i].writer = this;
 		threadDatas[i].queue = this->queue;
-		int result = pthread_create(&threads[i], &(this->detached_attr), Writer::runner, &threadDatas[i]);
+		std::cout << "Making Writer Thread " << i << std::endl;
+		int result = pthread_create(&threads[i], NULL, Writer::runner, &threadDatas[i]);
 		if (result != 0) {
 		std::cerr << "Error creating thread: " << strerror(result) << std::endl;
 		}
@@ -55,13 +48,14 @@ void Writer::run() {
 void Writer::join() {
 	//join the threads
 	for (int i = 0; i < this->num_threads; i++) {
+		std::cout << "Joining writer thread " << i << std::endl;
 		pthread_join(threads[i], NULL);
 	}
 }
 
 void* Writer::runner(void* arg) { 
 
-    ThreadData* threadData = (ThreadData*) arg;
+    WriterThreadData* threadData = (WriterThreadData*) arg;
 
     while (true) {
 
@@ -106,6 +100,5 @@ void* Writer::runner(void* arg) {
 Writer::~Writer() {
 	output.close();
 	pthread_mutex_destroy(&sequence_mutex);
-	pthread_attr_destroy(&detached_attr);
 	pthread_cond_destroy(&sequence_incremented);
 }
