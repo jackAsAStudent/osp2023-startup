@@ -2,6 +2,7 @@
 #define SHARED_STATE
 
 #include <pthread.h>
+#include <iostream>
 
 class SharedState {
 private:

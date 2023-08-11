@@ -31,12 +31,20 @@ void Reader::init(const std::string& input_file, unsigned int num_threads, Queue
 	this->threadDatas.resize(this->num_threads);
 
 	//initialise the mutex and the detached attribute.
-	pthread_mutex_init(&sequence_mutex, NULL);
+	int ret = pthread_mutex_init(&sequence_mutex, NULL);
+	if (ret != 0) {
+		std::cerr << "Error initialising mutex: " << strerror(ret) << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 Reader::~Reader() {
 	input.close();
-	pthread_mutex_destroy(&sequence_mutex);
+	int ret = pthread_mutex_destroy(&sequence_mutex);
+	if (ret != 0) {
+		std::cerr << "Error destroying mutex: " << strerror(ret) << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 void Reader::run() {
@@ -54,7 +62,11 @@ void Reader::run() {
 void Reader::join() {
 	//join the threads
 	for (int i = 0; i < this->num_threads; i++) {
-		pthread_join(threads[i], NULL);
+		int ret = pthread_join(threads[i], NULL);
+		if (ret != 0) {
+			std::cerr << "Error joining thread: " << strerror(ret) << std::endl;
+			exit(EXIT_FAILURE);
+		}
 	}
 }
 
@@ -64,7 +76,11 @@ void* Reader::runner(void* arg) {
     DataBlock block;
 
     while (true) {
-        pthread_mutex_lock(&threadData->reader->sequence_mutex);
+        int ret = pthread_mutex_lock(&threadData->reader->sequence_mutex);
+		if (ret != 0) {
+			std::cerr << "Error locking mutex: " << strerror(ret) << std::endl;
+			exit(EXIT_FAILURE);
+		}
 
         // Read data into the buffer
         threadData->reader->input.read(block.buffer.data(), BLOCK_SIZE);
@@ -76,7 +92,11 @@ void* Reader::runner(void* arg) {
 		block.sequence_number = threadData->reader->sequence++;
 
         // Unlock the mutex
-        pthread_mutex_unlock(&threadData->reader->sequence_mutex);
+        ret = pthread_mutex_unlock(&threadData->reader->sequence_mutex);
+		if (ret != 0) {
+			std::cerr << "Error unlocking mutex: " << strerror(ret) << std::endl;
+			exit(EXIT_FAILURE);
+		}
 
         // If no data was read, set reading done and break out of the loop
         if (block.actual_size == 0) {

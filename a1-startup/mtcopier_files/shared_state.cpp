@@ -11,10 +11,10 @@ SharedState::~SharedState() {
 }
 
 void SharedState::setReadingDone() {
+	std::cout << "reading set done" << std::endl;
 	pthread_mutex_lock(&state_mutex);
 	isReadingDone = true;
 	pthread_mutex_unlock(&state_mutex);
-	
 	pthread_cond_signal(&readingDoneCond);  // Signal any waiting threads
 }
 
