@@ -4,6 +4,7 @@
 		"iosfwd": "cpp",
 		"typeinfo": "cpp",
 		"vector": "cpp",
-		"istream": "cpp"
+		"istream": "cpp",
+		"__threading_support": "cpp"
 	}
 }
