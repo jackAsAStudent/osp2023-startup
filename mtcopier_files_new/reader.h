@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "Writer.h"
 
 class Reader {
    public:
@@ -23,7 +24,7 @@ class Reader {
      * file. There will be other things which you will need to figure out
      * as you complete the assignment.
      **/
-    void init(const std::string& input_file);
+    void init(const std::string& input_file, Writer* writer);
 
     ~Reader();
 
@@ -54,8 +55,9 @@ class Reader {
      * There may be other private instance data you need so declare those here.
      **/
     static pthread_mutex_t file_mutex;
-    static pthread_cond_t file_cond;
+    static pthread_cond_t file_available;
     pthread_t* thread;
+    static Writer* writer;
 };
 
 #endif // READER
